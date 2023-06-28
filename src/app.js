@@ -3,20 +3,36 @@ import onChange from 'on-change';
 import render from './view.js';
 import i18next from 'i18next';
 import resources from './locales/ru.js';
+import _ from 'lodash';
+import axios from 'axios';
+import parser from './parser.js';
 
-const validation = (url, state) => {
-    const stateForm = state.form;
+const fetchingData = (url) => axios
+  .get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
+  .then((response) => response.data.contents)
+  .catch(() => {
+    throw new Error('networkError');
+  });
 
-    const schema = yup.string().url().required().notOneOf([state.urls]);
-  schema.validate(url)
-    .then(() => {
-      stateForm.valid = true;
-      state.urls.push(url);
-    })
-    .catch((err) => {
-        stateForm.valid = false;
-        stateForm.error = err.errors.join();
-    });
+const updatePosts = (state) => {
+  const links = state.feeds.map((feed) => feed.linkFeed);
+  const promises = links.map((link) => fetchingData(link)
+    .then((response) => {
+      const { posts } = parser(response);
+      const currentPosts = state.posts;
+      const newPosts = _.differenceBy(posts, currentPosts, 'titlePost');
+      if (newPosts.length > 0) {
+        state.posts = [...newPosts, ...state.posts];
+      }
+    }));
+
+  return Promise.all(promises)
+    .finally(setTimeout(() => updatePosts(state), 5000));
+};
+
+const validateUrl = (url, parsedUrl) => {
+  const schema = yup.string().url().required().notOneOf(parsedUrl);
+  return schema.validate(url);
 };
 
 const runApp = (i18n) => {
@@ -24,27 +40,56 @@ const runApp = (i18n) => {
     form: document.querySelector('form'),
     input: document.querySelector('input'),
     feedback: document.querySelector('.feedback'),
+    postsContainer: document.querySelector('.posts'),
+    feedsContainer: document.querySelector('.feeds'),
+    submitButton: document.querySelector('button[type="submit"]'),
+    
   };
-
   // model
   const initialState = {
-    urls: [],
+    status: 'waiting',
     form: {
-      valid: true,
+      valid: false,
       error: '',
     },
+    stateUI: {
+      postsUI: [],
+      feedsUI: [],
+    },
+    posts: [],
+    feeds: [],
   };
   const watchedState = onChange(initialState, render(initialState, container, i18n));
 
   // control
   container.form.addEventListener('submit', (e) => {
     e.preventDefault();
+    watchedState.status = 'loading';
     const formData = new FormData(e.target);
     const url = formData.get('url');
-    validation(url, watchedState);
+    const parsedUrl = watchedState.feeds.map((feed) => feed.linkFeed);
+    validateUrl(url, parsedUrl)
+      .then(() => fetchingData(url))
+      .then((response) => parser(response, url))
+      .then((parsedData) => {
+        const { feed, posts } = parsedData;
+        posts.forEach((elem) => {
+          elem.postID = _.uniqueId();
+        });
+        watchedState.posts.unshift(posts);
+        watchedState.feeds.unshift(feed);
+        watchedState.form.valid = true;
+        watchedState.status = 'waiting';
+      })
+      .catch((err) => {
+        watchedState.form.valid = false;
+        watchedState.form.error = err.message;
+        watchedState.status = 'error!';
+      });
     container.form.reset();
     container.input.focus();
   });
+  updatePosts(watchedState);
 };
 
 export default () => {
@@ -53,8 +98,8 @@ export default () => {
 
   i18n.init({
     lng: defaultLanguage,
-    debug: true,
-    resources,
+    debug: false,
+    resources: { ru: resources },
   })
     .then(() => {
       yup.setLocale({
