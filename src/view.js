@@ -66,7 +66,7 @@ const renderFeeds = (state, container) => {
   feedsContainer.append(ulFeeds);
 };
 
-const renderPosts = (state, container) => {
+const renderPosts = (state, container, i18n) => {
   const { postsContainer } = container;
   postsContainer.innerHTML = '';
   const cardBorder = document.createElement('div');
@@ -93,8 +93,36 @@ const renderPosts = (state, container) => {
     anchorPost.setAttribute('target', '_blank');
     anchorPost.setAttribute('rel', 'noopener noreferrer');
     anchorPost.textContent = post.titlePost;
-    liPost.append(anchorPost);
+    const buttonPost = document.createElement('button');
+    buttonPost.setAttribute('type', 'button');
+    buttonPost.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    buttonPost.setAttribute('data-id', `${post.postID}`);
+    buttonPost.setAttribute('data-bs-toggle', 'modal');
+    buttonPost.setAttribute('data-bs-target', '#myModal');
+    buttonPost.textContent = i18n.t('interface.view');
+    liPost.append(anchorPost, buttonPost);
     ulPosts.append(liPost);
+  });
+};
+
+const renderModal = (state, container) => {
+  const [{ titlePost, descriptionPost, linkPost }] = state.stateUI.modalPost;
+  container.modal.modalTitle.textContent = titlePost;
+  container.modal.modalBody.textContent = descriptionPost;
+  container.modal.modalButton.setAttribute('href', `${linkPost}`);
+};
+
+const renderViewedPosts = (state, container) => {
+  const anchorsPost = container.postsContainer.querySelectorAll('.fw-bold');
+  const viewedPostTextContent = state.stateUI.viewedPosts.map((posts) => {
+    const [{ titlePost }] = posts;
+    return titlePost;
+  });
+  anchorsPost.forEach((anchor) => {
+    if (viewedPostTextContent.includes(anchor.textContent)) {
+      anchor.classList.remove('fw-bold');
+      anchor.classList.add('fw-normal', 'link-secondary');
+    }
   });
 };
 
@@ -115,7 +143,13 @@ export default (state, container, i18n) => (path) => {
         renderFeeds(state, container);
         break;
       case 'posts':
-        renderPosts(state, container);
+        renderPosts(state, container, i18n);
+      break;
+      case 'stateUI.viewedPosts':
+      renderViewedPosts(state, container);
+      break;
+    case 'stateUI.modalPost':
+      renderModal(state, container);
       break;
     default:
       throw new Error(`${path} is a wrong path`);
