@@ -19,8 +19,8 @@ export default (str, url) => {
       titlePost,
       descriptionPost,
       linkPost,
-  };
-});
+    };
+  });
 
   return { feed, posts };
 };
