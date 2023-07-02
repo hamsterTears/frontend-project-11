@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-undef
 module.exports = {
     "env": {
         "browser": true,
@@ -17,6 +16,26 @@ module.exports = {
       "node"
     ],
     "rules": {
-      "node/no-unsupported-features/es-syntax": "off"
+      "node/no-unsupported-features/es-syntax": "off",
+      "no-param-reassign": [
+        "error", 
+        { 
+            "props": false 
+        }
+    ],
+  //   "import/extensions" : [
+  //     "error",
+  //     "ignorePackages",
+  //     {
+  //         "js": "always"
+  //     }
+  // ],
+
+  "no-underscore-dangle": [
+    2, 
+    { 
+        "allow": ["__filename", "__dirname"] 
+    }
+]
     }
 }
