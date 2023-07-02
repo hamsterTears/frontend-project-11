@@ -1,10 +1,10 @@
 import * as yup from 'yup';
 import onChange from 'on-change';
-import render from './view.js';
 import i18next from 'i18next';
-import resources from './locales/ru.js';
 import _ from 'lodash';
 import axios from 'axios';
+import render from './view.js';
+import resources from './locales/ru.js';
 import parser from './parser.js';
 
 const fetchingData = (url) => axios
@@ -30,7 +30,7 @@ const updatePosts = (watchedState) => {
     }));
 
   return Promise.all(promises)
-  .finally(setTimeout(() => updatePosts(watchedState), 5000));
+    .finally(setTimeout(() => updatePosts(watchedState), 5000));
 };
 
 const validateUrl = (url, parsedUrl) => {
@@ -98,7 +98,7 @@ const runApp = (i18n) => {
     container.form.reset();
     container.input.focus();
   });
-  
+
   updatePosts(watchedState);
 
   container.postsContainer.addEventListener('click', (e) => {

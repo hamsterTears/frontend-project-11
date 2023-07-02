@@ -126,8 +126,6 @@ const renderViewedPosts = (state, container) => {
   });
 };
 
-
-
 export default (state, container, i18n) => (path) => {
   switch (path) {
     case 'status':
@@ -136,16 +134,16 @@ export default (state, container, i18n) => (path) => {
     case 'form.valid':
       renderValid(container, i18n);
       break;
-      case 'form.error':
-        renderError(state, container, i18n);
+    case 'form.error':
+      renderError(state, container, i18n);
       break;
-      case 'feeds':
-        renderFeeds(state, container);
-        break;
-      case 'posts':
-        renderPosts(state, container, i18n);
+    case 'feeds':
+      renderFeeds(state, container);
       break;
-      case 'stateUI.viewedPosts':
+    case 'posts':
+      renderPosts(state, container, i18n);
+      break;
+    case 'stateUI.viewedPosts':
       renderViewedPosts(state, container);
       break;
     case 'stateUI.modalPost':
