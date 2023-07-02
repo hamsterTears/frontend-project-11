@@ -3,9 +3,9 @@ module.exports = {
     browser: true,
     es2021: true,
     node: true,
-    },
+  },
   globals: {
-      __dirname: true,
+    __dirname: true,
   },
   extends: 'eslint:recommended',
   parserOptions: {
@@ -20,7 +20,7 @@ module.exports = {
     'no-param-reassign': [
       'error',
       {
-          'props': false,
+        props: false,
       },
     ],
     //   "import/extensions" : [
@@ -32,9 +32,9 @@ module.exports = {
     // ],
 
     'no-underscore-dangle': [
-    2,
-      { 
-      allow: ['__filename', '__dirname'],
+      2,
+      {
+        allow: ['__filename', '__dirname'],
       },
     ],
   },
