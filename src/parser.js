@@ -1,4 +1,4 @@
-export default (str, url) => {
+export default (str, url, id) => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(str, 'text/xml');
   const errorNode = doc.querySelector('parsererror');
@@ -22,5 +22,5 @@ export default (str, url) => {
     };
   });
 
-  return { feed, posts };
+  return id ? { id, feed, posts } : { feed, posts };
 };
