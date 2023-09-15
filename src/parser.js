@@ -2,7 +2,7 @@ export default (str, url, id) => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(str, 'text/xml');
   const parserError = doc.querySelector('parsererror');
-  if (parseError) {
+  if (parserError) {
     const error = new Error(parserError.textContent);
     error.isParsingError = true;
     throw error;
